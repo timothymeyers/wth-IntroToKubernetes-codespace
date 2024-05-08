@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: content-web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: content-web
+  template:
+    metadata:
+      labels:
+        app: content-web
+    spec:
+      containers:
+      - name: content-web
+        image: acrk8swth2.azurecr.io/content-web:v1
+        resources:
+          requests:
+            cpu: "128m"
+            memory: "128Mi"
+        env:
+        - name: CONTENT_API_URL
+          value: "http://content-api-service:3001"
+        ports:
+        - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: content-web-service
+  labels:
+    app: content-web
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP
+  selector:
+    app: content-web
